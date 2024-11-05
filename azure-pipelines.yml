@@ -46,4 +46,4 @@ stages:
       inputs:
         command: run
         containerName: 'test-container'
-        arguments: '-d -p 5000:5000 $(imageRepository):$(tag)'
+        arguments: '-d -p 80:80 $(imageRepository):$(tag)'

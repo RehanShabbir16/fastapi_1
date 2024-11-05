@@ -5,6 +5,8 @@ resources:
 - repo: self
 
 variables:
+  # Update these variables according to your needs
+  imageRepository: 'your-image-name'
   tag: '$(Build.BuildId)'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
 
@@ -15,15 +17,33 @@ stages:
   - job: Build
     displayName: Build
     pool:
-      name: Default # Change to a Microsoft-hosted agent for testing
+      name: Default
     steps:
-    - script: ls -la $(Build.SourcesDirectory)  # List contents to verify Dockerfile
-      displayName: 'List source directory contents'
+    # Verify source directory and Dockerfile
+    - script: |
+        pwd
+        ls -la $(Build.SourcesDirectory)
+        if [ ! -f "$(dockerfilePath)" ]; then
+          echo "##vso[task.logissue type=error]Dockerfile not found at $(dockerfilePath)"
+          exit 1
+        fi
+      displayName: 'Verify Dockerfile exists'
       
+    # Build the Docker image
     - task: Docker@2
       displayName: Build an image
       inputs:
         command: build
         dockerfile: '$(dockerfilePath)'
+        repository: $(imageRepository)
         tags: |
           $(tag)
+          latest
+
+    # Optional: Run the container to test
+    - task: Docker@2
+      displayName: Run container
+      inputs:
+        command: run
+        containerName: 'test-container'
+        arguments: '-d -p 5000:5000 $(imageRepository):$(tag)'

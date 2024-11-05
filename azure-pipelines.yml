@@ -1,7 +1,3 @@
-# Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - main
 
@@ -10,6 +6,7 @@ resources:
 
 variables:
   tag: '$(Build.BuildId)'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
 
 stages:
 - stage: Build
@@ -18,12 +15,15 @@ stages:
   - job: Build
     displayName: Build
     pool:
-      name: Default
+      name: Default # Change to a Microsoft-hosted agent for testing
     steps:
+    - script: ls -la $(Build.SourcesDirectory)  # List contents to verify Dockerfile
+      displayName: 'List source directory contents'
+      
     - task: Docker@2
       displayName: Build an image
       inputs:
         command: build
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        dockerfile: '$(dockerfilePath)'
         tags: |
           $(tag)

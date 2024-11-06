@@ -17,7 +17,7 @@ stages:
   - job: Build
     displayName: Build
     pool:
-      name: Default
+      name: myUbuntuAgent
     steps:
     # Verify source directory and Dockerfile
     - script: |
